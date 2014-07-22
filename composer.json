@@ -42,6 +42,6 @@
         "psr-0": {
             "AsseticBundle": "src"
         },
-        "classmap": ["Module.php"]
+        "classmap": ["Module.php", "src"]
     }
 }
