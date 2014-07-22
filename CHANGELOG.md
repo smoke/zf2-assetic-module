@@ -1,3 +1,67 @@
+2013-11-15
+----------
+
+  * Added the possibility to define assets to actions
+
+    Example controller configuration
+
+    ```php
+    'controllers' => array(
+        'ModuleName\Controller\ControllerName' => array(
+            'actions' => array(
+                'actionName' => array(
+                    '@collection_name',
+                ),
+            ),
+            '@base_css',
+            '@base_js',
+        ),
+    ),
+    ```
+
+2013-09-25
+----------
+
+  * Refactored view helper and added an ability to prevent browser cache when the file is updated.
+  
+    ```php
+    <?php
+    echo $this->asset('login_ie7_head_js', array('addFileMTime' => true))
+    ```
+
+2013-09-25
+----------
+
+  * Added view helper to have an ability to include asset collections in the view script manually.
+  
+    Only the collection name is required.
+    
+    ```
+    <!--[if IE 7]>
+        <?php echo $this->asset('login_ie7_head_js', array('type' => 'text/javascript')) ?>
+        <?php echo $this->asset('login_ie7_css', array('media' => 'screen', 'type' => 'screen', 'text/css' => 'stylesheet')) ?>
+    <![endif]-->
+    ```
+    
+    Register view helper in your module if necessary:
+    
+    ```php
+    <?php
+    public function getViewHelperConfig()
+    {
+        return array(
+            'factories' => array(
+                'asset' => function($helpers) {
+                    /** @var HelperPluginManager $helpers */
+
+                    $sl = $helpers->getServiceLocator();
+                    return new Helper\Asset($sl);
+                },
+            ),
+        );
+    }
+    ```
+
 2013-07-25
 ----------
 

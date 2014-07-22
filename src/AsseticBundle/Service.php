@@ -233,7 +233,9 @@ class Service
 
     public function setupRenderer(Renderer $renderer)
     {
-        $config = $this->getControllerConfig();
+        $controllerConfig = $this->getControllerConfig();
+        $actionConfig = $this->getActionConfig();
+        $config = array_merge($controllerConfig, $actionConfig);
 
         if (count($config) == 0) {
             $config = $this->getRouterConfig();
@@ -302,7 +304,32 @@ class Service
     public function getControllerConfig()
     {
         $assetOptions = $this->configuration->getController($this->getControllerName());
-        return $assetOptions ? $assetOptions : array();
+        if($assetOptions)
+        {
+            if(array_key_exists('actions', $assetOptions)){
+                unset($assetOptions['actions']);
+            }
+        }
+        else
+        {
+            $assetOptions = array();
+        }
+        return $assetOptions;
+    }
+
+    public function getActionConfig()
+    {
+        $assetOptions = $this->configuration->getController($this->getControllerName());
+        $actionName = $this->getActionName();
+        if($assetOptions && array_key_exists('actions', $assetOptions) && array_key_exists($actionName, $assetOptions['actions']))
+        {
+            $actionAssets = $assetOptions['actions'][$actionName];
+        }
+        else
+        {
+            $actionAssets = array();
+        }
+        return $actionAssets;
     }
 
     public function setupRendererFromOptions(Renderer $renderer, array $options)
@@ -414,12 +441,9 @@ class Service
         $factory = new Factory\AssetFactory($configuration['root_path']);
         $factory->setAssetManager($this->getAssetManager());
         $factory->setFilterManager($this->getFilterManager());
-        // Cache buster should be add only if cache is enabled and if is available.
-        if ($this->configuration->getCacheEnabled()) {
-            $worker = $this->getCacheBusterStrategy();
-            if ($worker instanceof WorkerInterface) {
-                $factory->addWorker($worker);
-            }
+        $worker = $this->getCacheBusterStrategy();
+        if ($worker instanceof WorkerInterface) {
+            $factory->addWorker($worker);
         }
         $factory->setDebug($this->configuration->isDebug());
         return $factory;
